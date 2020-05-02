@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 #train
 python experiments/segmentation/train.py --dataset pcontext \
-    --model deeplabv3plus --aux --dilated --multi-grid --stride 16 --aackbone resnet50 --checkname deeplabv3plus_res50_pcontext
-trous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
-    --b
+    --model deeplabv3plus --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
+    --backbone resnet50 --checkname  deeplabv3plus_res50_pcontext
 #test [single-scale]
 python experiments/segmentation/test.py --dataset pcontext \
     --model deeplabv3plus --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 \
