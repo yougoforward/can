@@ -136,7 +136,7 @@ class ResNet(nn.Module):
         - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
     # pylint: disable=unused-variable
-    def __init__(self, block, layers, num_classes=1000, dilated=True, stride=8, norm_layer=nn.BatchNorm2d, deep_base=True, multi_grid=False, multi_dilation=[4,8,16]):
+    def __init__(self, block, layers, num_classes=1000, dilated=True, stride=8, norm_layer=nn.BatchNorm2d, deep_base=True, multi_grid=False, multi_dilation=[1,2,4]):
         self.inplanes = 128 if deep_base else 64
         super(ResNet, self).__init__()
         if deep_base:
@@ -205,13 +205,13 @@ class ResNet(nn.Module):
             else:
                 raise RuntimeError("=> unknown dilation size: {}".format(dilation))
         else:
-            layers.append(block(self.inplanes, planes, stride, dilation=multi_dilation[0],
+            layers.append(block(self.inplanes, planes, stride, dilation=multi_dilation[0]*dilation,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         self.inplanes = planes * block.expansion
         if multi_grid:
             div = len(multi_dilation)
             for i in range(1,blocks):
-                layers.append(block(self.inplanes, planes, dilation=multi_dilation[i%div], previous_dilation=dilation,
+                layers.append(block(self.inplanes, planes, dilation=multi_dilation[i%div]*dilation, previous_dilation=dilation,
                                                     norm_layer=norm_layer))
         else:
             for i in range(1, blocks):
