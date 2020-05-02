@@ -19,10 +19,10 @@ class CAN(BaseNet):
 
     def forward(self, x):
         _, _, h, w = x.size()
-        _, _, c3, c4 = self.base_forward(x)
+        _, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, xe = self.head(c4)
+        x, xe = self.head(c4, c2)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
         xe = F.interpolate(xe, (h,w), **self._up_kwargs)
