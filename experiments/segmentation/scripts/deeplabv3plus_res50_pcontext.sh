@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #train
 python train.py --dataset pcontext \
-    --model deeplabv3plus --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 \
+    --model deeplabv3plus --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
     --backbone resnet50 --checkname deeplabv3plus_res50_pcontext
 
 #test [single-scale]

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #train
 python train_can.py --dataset pcontext \
-    --model can --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 \
+    --model can --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
     --backbone resnet50 --checkname can_res50_pcontext
 
 #test [single-scale]
