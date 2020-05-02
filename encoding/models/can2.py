@@ -99,8 +99,8 @@ class CAN2Head(nn.Module):
 
 def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
     block = nn.Sequential(
-        nn.Conv2d(in_channels, 512, 3, padding=atrous_rate,
-                  dilation=atrous_rate, bias=False),
+        nn.Conv2d(in_channels, 512, 1, padding=0,
+                  dilation=1, bias=False),
         norm_layer(512),
         nn.ReLU(True),
         nn.Conv2d(512, out_channels, 3, padding=atrous_rate,
