@@ -5,22 +5,25 @@
 ###########################################################################
 
 import os
+import sys
 import random
 import numpy as np
+from tqdm import tqdm, trange
+from PIL import Image, ImageOps, ImageFilter
 
 import torch
-
-from tqdm import tqdm
-from PIL import Image, ImageOps, ImageFilter
+import torch.utils.data as data
+import torchvision.transforms as transform
 
 from .base import BaseDataset
 
 class CitySegmentation(BaseDataset):
     NUM_CLASS = 19
-    def __init__(self, root=os.path.expanduser('~/.encoding/data'), split='train',
+    def __init__(self, root=os.path.expanduser('../../datasets/cityscapes'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(CitySegmentation, self).__init__(
             root, split, mode, transform, target_transform, **kwargs)
+        #self.root = os.path.join(root, self.BASE_DIR)
         self.images, self.mask_paths = get_city_pairs(self.root, self.split)
         assert (len(self.images) == len(self.mask_paths))
         if len(self.images) == 0:
@@ -67,6 +70,7 @@ class CitySegmentation(BaseDataset):
             if self.transform is not None:
                 img = self.transform(img)
             return img, os.path.basename(self.images[index])
+        #mask = self.masks[index]
         mask = Image.open(self.mask_paths[index])
         # synchrosized transform
         if self.mode == 'train':
@@ -100,10 +104,10 @@ class CitySegmentation(BaseDataset):
             ow = int(1.0 * w * oh / h)
         img = img.resize((ow, oh), Image.BILINEAR)
         mask = mask.resize((ow, oh), Image.NEAREST)
-        # random rotate -10~10, mask using NN rotate
-        deg = random.uniform(-10, 10)
-        img = img.rotate(deg, resample=Image.BILINEAR)
-        mask = mask.rotate(deg, resample=Image.NEAREST)
+
+        # # # random rotate
+        # img, mask = RandomRotation(img, mask, 10, is_continuous=False)
+
         # pad crop
         if short_size < crop_size:
             padh = crop_size - oh if oh < crop_size else 0
@@ -116,14 +120,16 @@ class CitySegmentation(BaseDataset):
         y1 = random.randint(0, h - crop_size)
         img = img.crop((x1, y1, x1+crop_size, y1+crop_size))
         mask = mask.crop((x1, y1, x1+crop_size, y1+crop_size))
-        # gaussian blur as in PSP
-        if random.random() < 0.5:
-            img = img.filter(ImageFilter.GaussianBlur(
-                radius=random.random()))
+        # # gaussian blur as in PSP
+        # if random.random() < 0.5:
+        #     img = img.filter(ImageFilter.GaussianBlur(
+        #         radius=random.random()))
+
         # final transform
         return img, self._mask_transform(mask)
 
     def _mask_transform(self, mask):
+        #target = np.array(mask).astype('int32') - 1
         target = self._class_to_index(np.array(mask).astype('int32'))
         return torch.from_numpy(target).long()
 
@@ -132,11 +138,12 @@ class CitySegmentation(BaseDataset):
 
     def make_pred(self, mask):
         values = np.unique(mask)
+        # print(values)
+        # print(self._indices)
         for i in range(len(values)):
             assert(values[i] in self._indices)
         index = np.digitize(mask.ravel(), self._indices, right=True)
         return self._classes[index].reshape(mask.shape)
-
 
 def get_city_pairs(folder, split='train'):
     def get_path_pairs(img_folder, mask_folder):

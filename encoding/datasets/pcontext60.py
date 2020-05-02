@@ -17,7 +17,7 @@ from .base import BaseDataset
 
 class ContextSegmentation(BaseDataset):
     BASE_DIR = 'VOCdevkit/VOC2010'
-    NUM_CLASS = 59
+    NUM_CLASS = 60
     def __init__(self, root=os.path.expanduser('../../datasets/pcontext'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(ContextSegmentation, self).__init__(
@@ -96,7 +96,7 @@ class ContextSegmentation(BaseDataset):
         return img, mask
 
     def _mask_transform(self, mask):
-        target = np.array(mask).astype('int32') - 1
+        target = np.array(mask).astype('int32')
         return torch.from_numpy(target).long()
 
     def __len__(self):
