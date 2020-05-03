@@ -20,7 +20,7 @@ class DeepLabV3(BaseNet):
     def forward(self, x):
         _, _, h, w = x.size()
         _, _, c3, c4 = self.base_forward(x)
-
+        print(c4.size())
         outputs = []
         x = self.head(c4)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
