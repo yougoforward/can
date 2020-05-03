@@ -69,7 +69,7 @@ class CAN2Head(nn.Module):
         
         self.cam = CAM_Module(in_channels, atrous_rates, norm_layer, up_kwargs)
         self.se = nn.Sequential(
-                            nn.Conv2d(inter_channels*2, out_channels, 1, bias=True),
+                            nn.Conv2d(inter_channels*2, inter_channels, 1, bias=True),
                             nn.Sigmoid())
         self.block2 = nn.Sequential(
             nn.Dropout2d(0.1, False),
@@ -79,7 +79,7 @@ class CAN2Head(nn.Module):
         x_aspp = self.aspp(x)
         xe = self.cam(x)
         att = self.se(torch.cat([x_aspp, xe], dim=1))
-        x = att*x + (1-att)*xe
+        x = att*x_aspp + (1-att)*xe
 
 
         xup = F.interpolate(x, (h,w), **self._up_kwargs)
