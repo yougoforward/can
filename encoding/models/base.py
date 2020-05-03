@@ -66,9 +66,9 @@ class BaseNet(nn.Module):
         c2 = self.pretrained.layer2(c1)
         c3 = self.pretrained.layer3(c2)
         c4 = self.pretrained.layer4(c3)
-        print(c3.size())
-        print(c4.size())
-        print(self.jpu)
+        # print(c3.size())
+        # print(c4.size())
+        # print(self.jpu)
         if self.jpu:
             return self.jpu(c1, c2, c3, c4)
         else:
