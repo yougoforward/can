@@ -158,17 +158,15 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
         if dilated:
+            if stride==16:
+                self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilation=1, norm_layer=norm_layer)
+            else:
+                self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2, norm_layer=norm_layer)
             if multi_grid:
-                self.layer3 = self._make_layer(block,256,layers[2],stride=1,
-                                               dilation=2, norm_layer=norm_layer)
                 self.layer4 = self._make_layer(block,512,layers[3],stride=1,
                                                dilation=2*16//stride,norm_layer=norm_layer,
                                                multi_grid=multi_grid, multi_dilation=multi_dilation)
             else:
-                if stride==16:
-                    self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilation=1, norm_layer=norm_layer)
-                else:
-                    self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2, norm_layer=norm_layer)
                 self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
                                            dilation=2*16//stride, norm_layer=norm_layer)
         else:
