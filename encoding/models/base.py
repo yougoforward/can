@@ -26,8 +26,7 @@ class BaseNet(nn.Module):
                  base_size=520, crop_size=480, mean=[.485, .456, .406],
                  std=[.229, .224, .225], root='~/.encoding/models', **kwargs):
         super(BaseNet, self).__init__()
-        print(stride)
-
+        self.stride = stride
         self.nclass = nclass
         self.aux = aux
         self.se_loss = se_loss
@@ -58,6 +57,7 @@ class BaseNet(nn.Module):
             self.jpu = JPU_X([512, 1024, 2048], width=512, norm_layer=norm_layer, up_kwargs=up_kwargs)
 
     def base_forward(self, x):
+        print(self.stride)
         x = self.pretrained.conv1(x)
         x = self.pretrained.bn1(x)
         x = self.pretrained.relu(x)
