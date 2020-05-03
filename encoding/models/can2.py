@@ -76,9 +76,9 @@ class CAN2Head(nn.Module):
             nn.Conv2d(inter_channels, out_channels, 1))
     def forward(self, x, xl):
         n,c,h,w = xl.size()
-        x = self.aspp(x)
+        x_aspp = self.aspp(x)
         xe = self.cam(x)
-        att = self.se(torch.cat([x, xe], dim=1))
+        att = self.se(torch.cat([x_aspp, xe], dim=1))
         x = att*x + (1-att)*xe
 
 
