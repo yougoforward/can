@@ -26,6 +26,8 @@ class BaseNet(nn.Module):
                  base_size=520, crop_size=480, mean=[.485, .456, .406],
                  std=[.229, .224, .225], root='~/.encoding/models', **kwargs):
         super(BaseNet, self).__init__()
+        print(stride)
+
         self.nclass = nclass
         self.aux = aux
         self.se_loss = se_loss
