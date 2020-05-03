@@ -92,9 +92,9 @@ class SegmentationLosses2(CrossEntropyLoss):
             *preds, target = tuple(inputs)
             pred1, pred2, pred3 = tuple(preds[0])
             # pred1, pred2, pred3, target = tuple(inputs)
-            loss1 = super(SegmentationLosses, self).forward(pred1, target)
+            loss1 = super(SegmentationLosses2, self).forward(pred1, target)
             loss2 = self.bceloss(torch.sigmoid(pred2), target)
-            loss3 = super(SegmentationLosses, self).forward(pred3, target)
+            loss3 = super(SegmentationLosses2, self).forward(pred3, target)
             return loss1 + loss2 + self.aux_weight * loss3
         elif not self.aux:
             pred, se_pred, target = tuple(inputs)
