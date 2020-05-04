@@ -95,7 +95,9 @@ class SegmentationLosses2(CrossEntropyLoss):
             # pred1, pred2, pred3, target = tuple(inputs)
             loss1 = super(SegmentationLosses2, self).forward(pred1, target)
             not_ignore = (target!=self.ignore_index).float().unsqueeze(1)
-            onehot_label = F.one_hot(target, num_classes =self.nclass)
+            target_cp = target.clone()
+            target_cp[target_cp==self.ignore_index] = 255
+            onehot_label = F.one_hot(target_cp, num_classes =self.nclass)
             loss2 = torch.sum(self.bce(pred2, onehot_label)*not_ignore)/torch.sum(not_ignore)
             loss3 = super(SegmentationLosses2, self).forward(pred3, target)
             return loss1 + loss2 + self.aux_weight * loss3
