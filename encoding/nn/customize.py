@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 
 from torch.nn import functional as F
-from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d, BCELoss, CrossEntropyLoss
+from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d, BCELoss, CrossEntropyLoss, BCEWithLogitsLoss
 
 from torch.autograd import Variable
 
@@ -78,13 +78,14 @@ class SegmentationLosses2(CrossEntropyLoss):
                  aux=False, aux_weight=0.4, weight=None,
                  size_average=True, ignore_index=-1, reduction='mean'):
         super(SegmentationLosses2, self).__init__(weight, ignore_index=ignore_index, reduction=reduction)
+        self.ignore_index = ignore_index
         self.se_loss = se_loss
         self.aux = aux
         self.nclass = nclass
         self.se_weight = se_weight
         self.aux_weight = aux_weight
         self.bceloss = BCELoss(weight, reduction=reduction)
-
+        self.bce = BCEWithLogitsLoss(weight=None, size_average=None, reduce=None, reduction='none', pos_weight=None)
     def forward(self, *inputs):
         if not self.se_loss and not self.aux:
             return super(SegmentationLosses, self).forward(*inputs)
@@ -93,7 +94,9 @@ class SegmentationLosses2(CrossEntropyLoss):
             pred1, pred2, pred3 = tuple(preds[0])
             # pred1, pred2, pred3, target = tuple(inputs)
             loss1 = super(SegmentationLosses2, self).forward(pred1, target)
-            loss2 = self.bceloss(torch.sigmoid(pred2), target)
+            not_ignore = (target!=self.ignore_index).float().unsqueeze(1)
+            onehot_label = F.one_hot(target, num_classes =self.nclass)
+            loss2 = torch.sum(self.bce(pred2, onehot_label)*not_ignore)/torch.sum(not_ignore)
             loss3 = super(SegmentationLosses2, self).forward(pred3, target)
             return loss1 + loss2 + self.aux_weight * loss3
         elif not self.aux:
