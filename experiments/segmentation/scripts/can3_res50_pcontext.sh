@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #train
-python -m experiments.segmentation.train_can --dataset pcontext \
+python -m experiments.segmentation.train --dataset pcontext \
     --model can3 --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
     --backbone resnet50 --checkname can3_res50_pcontext
 
