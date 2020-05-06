@@ -76,11 +76,11 @@ class CANHead(nn.Module):
             nn.Conv2d(inter_channels, out_channels, 1))
     def forward(self, x, xl):
         n,c,h,w = xl.size()
-        x = self.aspp(x)
-        xup = F.interpolate(x, (h,w), **self._up_kwargs)
+        x_aspp = self.aspp(x)
+        xup = F.interpolate(x_aspp, (h,w), **self._up_kwargs)
         x_skip = self.skip(xl)
-        x = self.decoder(torch.cat([xup, x_skip], dim=1))
-        out = self.block(x)
+        out = self.decoder(torch.cat([xup, x_skip], dim=1))
+        out = self.block(out)
 
         #class-aware attention
         xe = self.cam(x)
