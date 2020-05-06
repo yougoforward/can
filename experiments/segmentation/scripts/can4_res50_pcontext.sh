@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #train
 python -m experiments.segmentation.train_can --dataset pcontext \
-    --model can4 --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 8 \
+    --model can4 --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 --batch-size 6 \
     --backbone resnet50 --checkname can4_res50_pcontext
 
 #test [single-scale]
