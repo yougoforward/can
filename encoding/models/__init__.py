@@ -8,7 +8,8 @@ from .deeplabv3 import *
 from .deeplabv3plus import*
 from .can import *
 from .can2 import *
-
+from .can3 import *
+from .can4 import *
 
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
@@ -20,5 +21,7 @@ def get_segmentation_model(name, **kwargs):
         'deeplabv3plus': get_deeplabv3plus,
         'can': get_can,
         'can2': get_can2,
+        'can3': get_can3,
+        'can4': get_can4,
     }
     return models[name.lower()](**kwargs)

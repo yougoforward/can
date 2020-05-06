@@ -7,13 +7,13 @@ import torch.nn.functional as F
 from .fcn import FCNHead
 from .base import BaseNet
 
-__all__ = ['can3', 'get_can3']
+__all__ = ['can4', 'get_can4']
 
-class can3(BaseNet):
+class can4(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=False, atrous_rates=(12, 24, 36), norm_layer=nn.BatchNorm2d, **kwargs):
-        super(can3, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        super(can4, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
 
-        self.head = can3Head(2048, nclass, norm_layer, self._up_kwargs,atrous_rates)
+        self.head = can4Head(2048, nclass, norm_layer, self._up_kwargs,atrous_rates)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
 
@@ -22,9 +22,12 @@ class can3(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x = self.head(c4, c1)
+        x, xe = self.head(c4, c1)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
+        xe = F.interpolate(xe, (h,w), **self._up_kwargs)
+        outputs.append(xe)
+        
         if self.aux:
             auxout = self.auxlayer(c3)
             auxout = F.interpolate(auxout, (h,w), **self._up_kwargs)
@@ -33,9 +36,9 @@ class can3(BaseNet):
         return tuple(outputs)
 
 
-class can3Head(nn.Module):
+class can4Head(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, up_kwargs, atrous_rates):
-        super(can3Head, self).__init__()
+        super(can4Head, self).__init__()
         inter_channels = in_channels // 8
         self.aspp = ASPP_Module(in_channels, atrous_rates, norm_layer, up_kwargs)
         # self.block = nn.Sequential(
@@ -63,16 +66,18 @@ class can3Head(nn.Module):
             nn.ReLU(True)
             )
         self._up_kwargs = up_kwargs
-        
+        self.block2 = nn.Sequential(
+            nn.Dropout2d(0.1, False),
+            nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x, xl):
         n,c,h,w = xl.size()
-        x = self.aspp(x)
+        x, y = self.aspp(x)
         xup = F.interpolate(x, (h,w), **self._up_kwargs)
         x_skip = self.skip(xl)
         x = self.decoder(torch.cat([xup, x_skip], dim=1))
         x = self.block(x)
-        return x
+        return x, self.block2(y)
 
 
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
@@ -162,13 +167,13 @@ class ASPP_Module(nn.Module):
         att = self.project2(y2)
         out = att*y + (1-att)*gp.expand(n, c, h, w)
         out = self.project3(out)
-        return out
+        return out, y
 
-def get_can3(dataset='pascal_voc', backbone='resnet50', pretrained=False,
+def get_can4(dataset='pascal_voc', backbone='resnet50', pretrained=False,
                 root='~/.encoding/models', **kwargs):
     # infer number of classes
     from ..datasets import datasets
-    model = can3(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
+    model = can4(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         raise NotImplementedError
 
