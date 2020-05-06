@@ -160,7 +160,7 @@ class ASPP_Module(nn.Module):
 
 class CAM_Module(nn.Module):
     def __init__(self, in_channels, atrous_rates, norm_layer, up_kwargs):
-        super(ASPP_Module, self).__init__()
+        super(CAM_Module, self).__init__()
         out_channels = in_channels // 8
         rate1, rate2, rate3 = tuple(atrous_rates)
         self.b0 = nn.Sequential(
