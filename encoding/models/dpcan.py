@@ -39,7 +39,7 @@ class dpcan(BaseNet):
 class dpcanHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, up_kwargs, atrous_rates):
         super(dpcanHead, self).__init__()
-        inter_channels = in_channels // 8
+        inter_channels = in_channels // 4
         self.aspp1 = ASPP_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
         self.aspp2 = ASPP_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
