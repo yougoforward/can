@@ -22,6 +22,8 @@ class Options():
                             False, help='dilation')
         parser.add_argument('--multi-grid', action='store_true', default=
                             False, help='multigrid dilation')
+        parser.add_argument('--decoder', action='store_true', default=
+                            False, help='deeplabv3plus decoder')
         parser.add_argument('--stride', type=int, default=8,
                             help='output stride')
         parser.add_argument('--atrous-rates', nargs='+', type=int, default=[12, 24, 36], help='atrous rates')             

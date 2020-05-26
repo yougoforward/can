@@ -10,6 +10,7 @@ from .can import *
 from .can2 import *
 from .can3 import *
 from .can4 import *
+from .dpcan import *
 
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
@@ -17,11 +18,12 @@ def get_segmentation_model(name, **kwargs):
         'fcn': get_fcn,
         'psp': get_psp,
         'encnet': get_encnet,
-        'deeplab': get_deeplab,
+        'deeplabv3': get_deeplabv3,
         'deeplabv3plus': get_deeplabv3plus,
         'can': get_can,
         'can2': get_can2,
         'can3': get_can3,
         'can4': get_can4,
+        'dpcan': get_dpcan,
     }
     return models[name.lower()](**kwargs)
