@@ -27,7 +27,7 @@ class VOCSegmentation(BaseDataset):
         # train/val/test splits are pre-cut
         _splits_dir = os.path.join(_voc_root, 'ImageSets/Segmentation')
         if self.split == 'train':
-            _split_f = os.path.join(_splits_dir, 'train.txt')
+            _split_f = os.path.join(_splits_dir, 'train_aug.txt')
         elif self.split == 'val':
             _split_f = os.path.join(_splits_dir, 'val.txt')
         elif self.split == 'test':
