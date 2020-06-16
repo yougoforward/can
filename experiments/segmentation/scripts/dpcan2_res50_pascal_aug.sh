@@ -1,6 +1,6 @@
 # !/usr/bin/env bash
 # train
-python -m experiments.segmentation.train --dataset psacal_aug \
+python -m experiments.segmentation.train_can --dataset psacal_aug \
     --model dpcan2 --aux --dilated --base-size 520 --crop-size 520 \
     --backbone resnet50 --checkname dpcan2_res50_psacal_aug
 
