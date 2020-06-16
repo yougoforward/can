@@ -13,7 +13,7 @@ class CAN(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=False, atrous_rates=(12, 24, 36), norm_layer=nn.BatchNorm2d, **kwargs):
         super(CAN, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
 
-        self.head = CANHead(2048, nclass, norm_layer, self._up_kwargs,atrous_rates)
+        self.head = CANHead(2048, nclass, norm_layer, self._up_kwargs, atrous_rates)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
 
