@@ -3,6 +3,7 @@ from .coco import COCOSegmentation
 from .ade20k import ADE20KSegmentation
 from .pascal_voc import VOCSegmentation
 from .pascal_aug import VOCAugSegmentation
+from .pascal import PascalSegmentation
 from .pcontext import ContextSegmentation
 from .cityscapes import CitySegmentation
 # from .pcontext60 import ContextSegmentation
@@ -13,6 +14,7 @@ datasets = {
     'ade20k': ADE20KSegmentation,
     'pascal_voc': VOCSegmentation,
     'pascal_aug': VOCAugSegmentation,
+    'pascal': PascalSegmentation,
     'pcontext': ContextSegmentation,
     'cityscapes': CitySegmentation,
     'cocostuff': CocostuffSegmentation,

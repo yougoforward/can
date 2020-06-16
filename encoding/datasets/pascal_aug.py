@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from .base import BaseDataset
 
-class VOCSegmentation(BaseDataset):
+class VOCAugSegmentation(BaseDataset):
     CLASSES = [
         'background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
         'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',
@@ -19,7 +19,7 @@ class VOCSegmentation(BaseDataset):
     BASE_DIR = 'pascal'
     def __init__(self, root=os.path.expanduser('./datasets'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
-        super(VOCSegmentation, self).__init__(root, split, mode, transform,
+        super(VOCAugSegmentation, self).__init__(root, split, mode, transform,
                                               target_transform, **kwargs)
         _voc_root = os.path.join(self.root, self.BASE_DIR)
         _mask_dir = os.path.join(_voc_root, 'SegmentationClassAug')
