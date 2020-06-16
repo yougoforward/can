@@ -57,7 +57,7 @@ class dpcan3Head(nn.Module):
         self.block4 = nn.Sequential(
             nn.Dropout2d(0.1, False),
             nn.Conv2d(inter_channels*2, out_channels, 1))
-        self.b4 = AsppPooling(in_channels, out_channels, norm_layer, up_kwargs)
+        self.b4 = AsppPooling(in_channels, inter_channels, norm_layer, up_kwargs)
 
     def forward(self, x, xl):
         n,c,h,w = xl.size()
