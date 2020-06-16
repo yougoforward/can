@@ -85,7 +85,7 @@ class SegmentationLosses2(CrossEntropyLoss):
         self.se_weight = se_weight
         self.aux_weight = aux_weight
         self.bceloss = BCELoss(weight, reduction=reduction)
-        self.bce = BCEWithLogitsLoss(weight=None, size_average=None, reduce=None, reduction='none', pos_weight=None)
+        self.bce = BCEWithLogitsLoss(weight=None, size_average=None, reduce=None, reduction='mean', pos_weight=None)
     def forward(self, *inputs):
         if not self.se_loss and not self.aux:
             return super(SegmentationLosses, self).forward(*inputs)
@@ -94,11 +94,12 @@ class SegmentationLosses2(CrossEntropyLoss):
             pred1, pred2, pred3 = tuple(preds[0])
             # pred1, pred2, pred3, target = tuple(inputs)
             loss1 = super(SegmentationLosses2, self).forward(pred1, target)
-            not_ignore = (target!=self.ignore_index).float().unsqueeze(1)
+            valid = (target!=self.ignore_index).unsqueeze(1)
             target_cp = target.clone()
             target_cp[target_cp==self.ignore_index] = 0
+            n,c,h,w = pred2.size()
             onehot_label = F.one_hot(target_cp, num_classes =self.nclass).float()
-            loss2 = torch.sum(self.bce(pred2, onehot_label.permute(0,3,1,2))*not_ignore)/torch.sum(not_ignore)
+            loss2 = self.bce(pred2[valid.expand(n,c,h,w)], onehot_label.permute(0,3,1,2)[valid.expand(n,c,h,w)])
             loss3 = super(SegmentationLosses2, self).forward(pred3, target)
             return loss1 + 0.4*loss2 + self.aux_weight * loss3
         elif not self.aux:
