@@ -134,6 +134,7 @@ class MultiEvalModule(DataParallel):
             _, _, height, width = cur_img.size()
             pad_img = pad_image(cur_img, self.module.mean, self.module.std, crop_size)
             _,_,ph,pw = pad_img.size()
+            print(pad_img.size())
             assert(ph >= height and pw >= width)
             # grid forward and normalize
             h_grids = int(math.ceil(1.0 * (ph-crop_size)/stride)) + 1
