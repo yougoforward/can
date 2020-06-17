@@ -152,8 +152,8 @@ class MultiEvalModule(DataParallel):
                     # pad if needed
                     pad_crop_img = pad_image(crop_img, self.module.mean,
                                                 self.module.std, crop_size)
-                    print(pad_crop_img.size())
                     output = module_inference(self.module, pad_crop_img, self.flip)
+                    print([h0,h1,w0,w1])
                     outputs[:,:,h0:h1,w0:w1] += crop_image(output,
                         0, h1-h0, 0, w1-w0)
                     count_norm[:,:,h0:h1,w0:w1] += 1
