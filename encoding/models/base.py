@@ -156,7 +156,7 @@ class MultiEvalModule(DataParallel):
                     outputs[:,:,h0:h1,w0:w1] += crop_image(output,
                         0, h1-h0, 0, w1-w0)
                     count_norm[:,:,h0:h1,w0:w1] += 1
-                assert((count_norm==0).sum()==0)
+                # assert((count_norm==0).sum()==0)
                 outputs = outputs / count_norm
                 outputs = outputs[:,:,:height,:width]
 
