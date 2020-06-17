@@ -119,10 +119,10 @@ class Options():
             lrs = {
                 'coco': 0.01,
                 'citys': 0.02,
-                'pascal_voc': 0.0003,
-                'pascal_aug': 0.003,
+                'pascal_voc': 0.0001,
+                'pascal_aug': 0.001,
                 'pcontext': 0.001,
-                'pascal': 0.003,
+                'pascal': 0.001,
                 'ade20k': 0.004,
                 'cocostuff': 0.001,
             }
