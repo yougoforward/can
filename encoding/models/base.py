@@ -132,7 +132,7 @@ class MultiEvalModule(DataParallel):
             # resize image to current size
             cur_img = F.interpolate(image, None, scale, **self.module._up_kwargs)
             _, _, height, width = cur_img.size()
-            pad_img = pad_image(cur_img, self.module.mean, self.module.std, int(crop_size*scale))
+            pad_img = pad_image(cur_img, self.module.mean, self.module.std, crop_size)
             _,_,ph,pw = pad_img.size()
             assert(ph >= height and pw >= width)
             # grid forward and normalize
