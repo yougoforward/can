@@ -154,6 +154,7 @@ class MultiEvalModule(DataParallel):
                                                 self.module.std, crop_size)
                     output = module_inference(self.module, pad_crop_img, self.flip)
                     print([h0,h1,w0,w1])
+                    print(outputs.size())
                     print(output.size())
                     outputs[:,:,h0:h1,w0:w1] += crop_image(output,0, h1-h0, 0, w1-w0)
                     count_norm[:,:,h0:h1,w0:w1] += 1
@@ -308,7 +309,7 @@ class MultiEvalModule_whole(DataParallel):
             # resize image to current size
             cur_img = F.interpolate(image, None, scale, **self.module._up_kwargs)
             _, _, height, width = cur_img.size()
-            pad_img = pad_image(cur_img, self.module.mean, self.module.std, int(crop_size*scale))
+            pad_img = pad_image(cur_img, self.module.mean, self.module.std, int(crop_size))
             outputs = module_inference(self.module, pad_img, self.flip)
             outputs = crop_image(outputs, 0, height, 0, width)
             score = resize_image(outputs, h, w, **self.module._up_kwargs)
