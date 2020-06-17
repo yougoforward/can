@@ -157,12 +157,12 @@ class MultiEvalModule(DataParallel):
                     output = module_inference(self.module, pad_crop_img, self.flip)
                     outputs[:,:,h0:h1,w0:w1] += crop_image(output,0, h1-h0, 0, w1-w0)
                     count_norm[:,:,h0:h1,w0:w1] += 1
-                # assert((count_norm==0).sum()==0)
-                outputs = outputs / count_norm
-                outputs = outputs[:,:,:height,:width]
+            # assert((count_norm==0).sum()==0)
+            outputs = outputs / count_norm
+            outputs = outputs[:,:,:height,:width]
 
-            score = resize_image(outputs, h, w, **self.module._up_kwargs)
-            scores += score
+        score = resize_image(outputs, h, w, **self.module._up_kwargs)
+        scores += score
 
         return scores
 
