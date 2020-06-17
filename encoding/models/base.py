@@ -131,6 +131,7 @@ class MultiEvalModule(DataParallel):
         for scale in self.scales:
             # resize image to current size
             cur_img = F.interpolate(image, None, scale, **self.module._up_kwargs)
+            print(cur_img.size())
             _, _, height, width = cur_img.size()
             pad_img = pad_image(cur_img, self.module.mean, self.module.std, crop_size)
             _,_,ph,pw = pad_img.size()
