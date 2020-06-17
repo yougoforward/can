@@ -139,8 +139,8 @@ class MultiEvalModule(DataParallel):
             h_grids = int(math.ceil(1.0 * (ph-crop_size)/stride)) + 1
             w_grids = int(math.ceil(1.0 * (pw-crop_size)/stride)) + 1
             with torch.cuda.device_of(image):
-                outputs = pad_img.new().resize_(batch,self.nclass,ph,pw).zero_().cuda()
-                count_norm = pad_img.new().resize_(batch,1,ph,pw).zero_().cuda()
+                outputs = image.new().resize_(batch,self.nclass,ph,pw).zero_().cuda()
+                count_norm = image.new().resize_(batch,1,ph,pw).zero_().cuda()
             # grid evaluation
             for idh in range(h_grids):
                 for idw in range(w_grids):
@@ -153,9 +153,12 @@ class MultiEvalModule(DataParallel):
                     pad_crop_img = pad_image(crop_img, self.module.mean,
                                                 self.module.std, crop_size)
                     output = module_inference(self.module, pad_crop_img, self.flip)
+                    print([h0,h1,w0,w1])
+                    print(outputs.size())
+                    print(outputs.size())
                     outputs[:,:,h0:h1,w0:w1] += crop_image(output,0, h1-h0, 0, w1-w0)
                     count_norm[:,:,h0:h1,w0:w1] += 1
-                assert((count_norm==0).sum()==0)
+                # assert((count_norm==0).sum()==0)
                 outputs = outputs / count_norm
                 outputs = outputs[:,:,:height,:width]
 
