@@ -11,5 +11,5 @@
 
 #test [multi-scale]
 python -m experiments.segmentation.test_whole --dataset pascal_aug \
-    --model deeplabv3 --aux --dilated --multi-grid --stride 8 --atrous-rates 12 24 36 --base-size 520 --crop-size 520 \
+    --model deeplabv3 --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 \
     --backbone resnet50 --resume experiments/segmentation/runs/pascal_aug/deeplabv3/deeplabv3_res50_pascal_aug/checkpoint.pth.tar --split val --mode testval --ms
