@@ -88,7 +88,7 @@ class SegmentationLosses2(CrossEntropyLoss):
         self.bce = BCEWithLogitsLoss(weight=None, size_average=None, reduce=None, reduction='mean', pos_weight=None)
     def forward(self, *inputs):
         if not self.se_loss and not self.aux:
-            return super(SegmentationLosses, self).forward(*inputs)
+            return super(SegmentationLosses2, self).forward(*inputs)
         elif not self.se_loss:
             # *preds, target = tuple(inputs)
             # pred1, pred2, pred3 = tuple(preds[0])
@@ -101,18 +101,18 @@ class SegmentationLosses2(CrossEntropyLoss):
             onehot_label = F.one_hot(target_cp, num_classes =self.nclass).float()
             loss2 = self.bce(pred2[valid.expand(n,c,h,w)], onehot_label.permute(0,3,1,2)[valid.expand(n,c,h,w)])
             loss3 = super(SegmentationLosses2, self).forward(pred3, target)
-            return loss1 + 0.4*loss2 + self.aux_weight * loss3
+            return loss1 + loss2 + self.aux_weight * loss3
         elif not self.aux:
             pred, se_pred, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
-            loss1 = super(SegmentationLosses, self).forward(pred, target)
+            loss1 = super(SegmentationLosses2, self).forward(pred, target)
             loss2 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.se_weight * loss2
         else:
             pred1, se_pred, pred2, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
-            loss1 = super(SegmentationLosses, self).forward(pred1, target)
-            loss2 = super(SegmentationLosses, self).forward(pred2, target)
+            loss1 = super(SegmentationLosses2, self).forward(pred1, target)
+            loss2 = super(SegmentationLosses2, self).forward(pred2, target)
             loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.aux_weight * loss2 + self.se_weight * loss3
 
