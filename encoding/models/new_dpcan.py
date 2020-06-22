@@ -73,8 +73,8 @@ class new_dpcanHead(nn.Module):
         # torch.max(input, dim, keepdim=False, out=None) -> (Tensor, LongTensor)
         coarse = self.block1(aspp1)
         pred = self.block2(aspp1)
-        coarse = torch.exp(coarse-torch.max(coarse, dim=1, keepdim=True))
-        pred = torch.exp(pred-torch.max(pred, dim=1, keepdim=True))
+        coarse = torch.exp(coarse-torch.max(coarse, dim=1, keepdim=True)[0])
+        pred = torch.exp(pred-torch.max(pred, dim=1, keepdim=True)[0])
         final_pred = class_att*pred+coarse
 
         #context free
