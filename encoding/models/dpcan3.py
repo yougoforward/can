@@ -53,7 +53,8 @@ class dpcan3Head(nn.Module):
             nn.Conv2d(inter_channels*2, out_channels, 1))
         self.block3 = nn.Sequential(
             nn.Dropout2d(0.1, False),
-            nn.Conv2d(inter_channels*2, out_channels, 1))
+            nn.Conv2d(inter_channels*2, out_channels, 1),
+            nn.Sigmoid())
         self.block4 = nn.Sequential(
             nn.Dropout2d(0.1, False),
             nn.Conv2d(inter_channels*2, out_channels, 1))
