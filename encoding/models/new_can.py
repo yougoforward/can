@@ -22,11 +22,13 @@ class new_can(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, xe = self.head(c4, c1)
+        x, coarse, free = self.head(c4, c1)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
-        xe = F.interpolate(xe, (h,w), **self._up_kwargs)
-        outputs.append(xe)
+        coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
+        outputs.append(coarse)
+        free = F.interpolate(free, (h,w), **self._up_kwargs)
+        outputs.append(free)
         
         if self.aux:
             auxout = self.auxlayer(c3)
@@ -69,7 +71,7 @@ class new_canHead(nn.Module):
 
         #context free
         context_free = self.block4(concat)
-        return coarse, context_free, pred
+        return pred, coarse, context_free
 
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
 #     block = nn.Sequential(
