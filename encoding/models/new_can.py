@@ -54,11 +54,7 @@ class new_canHead(nn.Module):
             nn.Conv2d(inter_channels, out_channels, 1))
         self.block3 = nn.Sequential(
             nn.Dropout2d(0.1, False),
-            nn.Conv2d(2*inter_channels, out_channels, 1),
-            nn.Sigmoid())
-        self.block4 = nn.Sequential(
-            nn.Dropout2d(0.1, False),
-            nn.Conv2d(2*inter_channels, out_channels, 1))
+            nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x, xl):
         n,c,h,w = xl.size()
@@ -70,7 +66,7 @@ class new_canHead(nn.Module):
         pred = self.block2(out)
 
         #context free
-        context_free = self.block4(aspp2)
+        context_free = self.block3(aspp2)
         return pred, coarse, context_free
 
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
