@@ -70,7 +70,7 @@ class new_canHead(nn.Module):
         pred = self.block2(out)
 
         #context free
-        context_free = self.block4(concat)
+        context_free = self.block4(aspp2)
         return pred, coarse, context_free
 
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
