@@ -160,7 +160,7 @@ class SegmentationLosses3(CrossEntropyLoss):
             onehot_label = F.one_hot(target_cp, num_classes =self.nclass).float()
             loss3 = self.bce(pred3[valid.expand(n,c,h,w)], onehot_label.permute(0,3,1,2)[valid.expand(n,c,h,w)])
             loss4 = super(SegmentationLosses3, self).forward(pred4, target)
-            return loss1 + loss2 +loss3 + self.aux_weight * loss4
+            return loss1 + 0.2*loss2 +0.2*loss3 + self.aux_weight * loss4
         elif not self.aux:
             pred, se_pred, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
