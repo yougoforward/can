@@ -15,6 +15,7 @@ from .dpcan2 import *
 from .dpcan3 import *
 from .new_dpcan import *
 from .new_can import *
+from .new_can2 import *
 def get_segmentation_model(name, **kwargs):
     from .fcn import get_fcn
     models = {
@@ -32,5 +33,6 @@ def get_segmentation_model(name, **kwargs):
         'dpcan3': get_dpcan3,
         'new_dpcan': get_new_dpcan,
         'new_can': get_new_can,
+        'new_can2': get_new_can2,
     }
     return models[name.lower()](**kwargs)
