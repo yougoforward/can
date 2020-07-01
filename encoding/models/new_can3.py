@@ -22,11 +22,11 @@ class new_can3(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, coarse, free = self.head(c4, c1)
+        x, free = self.head(c4, c1)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
-        coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
-        outputs.append(coarse)
+        # coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
+        # outputs.append(coarse)
         free = F.interpolate(free, (h,w), **self._up_kwargs)
         outputs.append(free)
         
