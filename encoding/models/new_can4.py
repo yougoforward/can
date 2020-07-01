@@ -7,13 +7,13 @@ import torch.nn.functional as F
 from .fcn import FCNHead
 from .base import BaseNet
 
-__all__ = ['new_can3', 'get_new_can3']
+__all__ = ['new_can4', 'get_new_can4']
 
-class new_can3(BaseNet):
+class new_can4(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=False, atrous_rates=(12, 24, 36), decoder=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(new_can3, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
+        super(new_can4, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
 
-        self.head = new_can3Head(2048, nclass, norm_layer, self._up_kwargs, atrous_rates)
+        self.head = new_can4Head(2048, nclass, norm_layer, self._up_kwargs, atrous_rates)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
 
@@ -38,9 +38,9 @@ class new_can3(BaseNet):
         return tuple(outputs)
 
 
-class new_can3Head(nn.Module):
+class new_can4Head(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, up_kwargs, atrous_rates):
-        super(new_can3Head, self).__init__()
+        super(new_can4Head, self).__init__()
         inter_channels = in_channels // 4
         self._up_kwargs = up_kwargs
         
@@ -209,11 +209,11 @@ class ASPP_Module(nn.Module):
         out = torch.cat([out, feat4], dim=1)
         return y1,y2,out
 
-def get_new_can3(dataset='pascal_voc', backbone='resnet50', pretrained=False,
+def get_new_can4(dataset='pascal_voc', backbone='resnet50', pretrained=False,
                 root='~/.encoding/models', **kwargs):
     # infer number of classes
     from ..datasets import datasets
-    model = new_can3(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
+    model = new_can4(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         raise NotImplementedError
 
