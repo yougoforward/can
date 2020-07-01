@@ -1,6 +1,6 @@
 # !/usr/bin/env bash
 # train
-python -m experiments.segmentation.train_can2 --dataset pascal_aug \
+python -m experiments.segmentation.train_can --dataset pascal_aug \
     --model new_can3 --aux --dilated --multi-grid --stride 16 --atrous-rates 6 12 18 --base-size 520 --crop-size 520 \
     --backbone resnet50 --checkname new_can3_res50_pascal_aug
 
