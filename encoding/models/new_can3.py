@@ -22,7 +22,7 @@ class new_can3(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, free = self.head(c4, c1)
+        x, free = self.head(c1,c2,c3,c4)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
         # coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
@@ -57,13 +57,10 @@ class new_can3Head(nn.Module):
         self.fpn_head = fcn_fpnHead(2048, inter_channels, norm_layer, self._up_kwargs)
         self.aspp = ASPP_Module(inter_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
-    def forward(self, x, xl):
-        n,c,h,w = xl.size()
-
-        x = self.fpn_head(x)
+    def forward(self, c1,c2,c3,c4):
+        x = self.fpn_head(c1,c2,c3,c4)
         #dual path
         aspp1, aspp2, out = self.aspp(x)
-
 
         #context sensitive
         # coarse = self.block1(aspp1)
@@ -96,7 +93,7 @@ class fcn_fpnHead(nn.Module):
                                    norm_layer(inter_channels),
                                    nn.ReLU(),
                                    )
-    def forward(self, c1,c2,c3,c4,c20,c30,c40):
+    def forward(self, c1,c2,c3,c4):
         out = self.conv5(c4)
         out = self.localUp4(c3, out)
         out = self.localUp3(c2, out)
@@ -117,7 +114,7 @@ class localUp(nn.Module):
     def forward(self, c1,c2):
         n,c,h,w =c1.size()
         c1 = self.connect(c1) # n, 64, h, w
-        c2 = interpolate(c2, (h,w), **self._up_kwargs)
+        c2 = F.interpolate(c2, (h,w), **self._up_kwargs)
         out = c1+c2
         return out
 
