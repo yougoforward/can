@@ -22,11 +22,11 @@ class new_can3(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, free = self.head(c1,c2,c3,c4)
+        x, coarse, free = self.head(c1,c2,c3,c4)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
-        # coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
-        # outputs.append(coarse)
+        coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
+        outputs.append(coarse)
         free = F.interpolate(free, (h,w), **self._up_kwargs)
         outputs.append(free)
         
@@ -63,12 +63,12 @@ class new_can3Head(nn.Module):
         aspp1, aspp2, out = self.aspp(x)
 
         #context sensitive
-        # coarse = self.block1(aspp1)
+        coarse = self.block1(aspp1)
         pred = self.block2(out)
 
         #context free
         context_free = self.block3(aspp2)
-        return pred, context_free
+        return pred, coarse, context_free
 
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
 #     block = nn.Sequential(
@@ -181,7 +181,7 @@ class ASPP_Module(nn.Module):
             norm_layer(out_channels),
             nn.ReLU(True))
         self.context_att = nn.Sequential(
-            nn.Conv2d(out_channels, out_channels, 1, bias=True),
+            nn.Conv2d(in_channels+2*out_channels, out_channels, 1, bias=True),
             nn.Sigmoid())
         self.project = nn.Sequential(
             nn.Conv2d(2*out_channels, out_channels, 1, bias=False),
@@ -204,8 +204,8 @@ class ASPP_Module(nn.Module):
         # att = self.context_att(torch.cat([y1, y2], dim=1))
         # att_list = torch.split(att, 1, dim=1)
         # out = self.project(torch.cat([y1*att_list[0], y2*att_list[1]], dim=1))
-        att = self.context_att(y2)
-        out = y1+y1*att
+        att = self.context_att(torch.cat([x,y1,y2], dim=1))
+        out = y1*att+y2*(1-att)
         out = torch.cat([out, feat4], dim=1)
         return y1,y2,out
 
