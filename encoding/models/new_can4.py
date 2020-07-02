@@ -205,7 +205,7 @@ class ASPP_Module(nn.Module):
         # att_list = torch.split(att, 1, dim=1)
         # out = self.project(torch.cat([y1*att_list[0], y2*att_list[1]], dim=1))
         att = self.context_att(torch.cat([x,y1,y2], dim=1))
-        out = y1*att+y2*(1-att)
+        out = y1*att
         out = torch.cat([out, feat4], dim=1)
         return y1,y2,out
 
