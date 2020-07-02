@@ -54,8 +54,8 @@ class new_can4Head(nn.Module):
             nn.Dropout2d(0.1, False),
             nn.Conv2d(inter_channels, out_channels, 1))
 
-        self.fpn_head = fcn_fpnHead(2048, inter_channels, norm_layer, self._up_kwargs)
-        self.aspp = ASPP_Module(inter_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
+        self.fpn_head = fcn_fpnHead(in_channels, inter_channels, norm_layer, self._up_kwargs)
+        self.aspp = ASPP_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
     def forward(self, c1,c2,c3,c4):
         # x = self.fpn_head(c1,c2,c3,c4)
