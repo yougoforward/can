@@ -104,7 +104,7 @@ class Options():
                 'coco': 30,
                 'citys': 240,
                 'pascal_voc': 50,
-                'pascal_aug': 50,
+                'pascal_aug': 80,
                 'pascal': 50,
                 'pcontext': 80,
                 'ade20k': 120,
