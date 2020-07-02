@@ -58,9 +58,9 @@ class new_can4Head(nn.Module):
         self.aspp = ASPP_Module(inter_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
     def forward(self, c1,c2,c3,c4):
-        x = self.fpn_head(c1,c2,c3,c4)
+        # x = self.fpn_head(c1,c2,c3,c4)
         #dual path
-        aspp1, aspp2, out = self.aspp(x)
+        aspp1, aspp2, out = self.aspp(c4)
 
         #context sensitive
         coarse = self.block1(aspp1)
