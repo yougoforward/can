@@ -22,13 +22,9 @@ class new_can4(BaseNet):
         c1, c2, c3, c4 = self.base_forward(x)
 
         outputs = []
-        x, coarse, free = self.head(c1,c2,c3,c4)
+        x = self.head(c1,c2,c3,c4)
         x = F.interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
-        coarse = F.interpolate(coarse, (h,w), **self._up_kwargs)
-        outputs.append(coarse)
-        free = F.interpolate(free, (h,w), **self._up_kwargs)
-        outputs.append(free)
         
         if self.aux:
             auxout = self.auxlayer(c3)
@@ -44,32 +40,20 @@ class new_can4Head(nn.Module):
         inter_channels = in_channels // 4
         self._up_kwargs = up_kwargs
         
-        self.block1 = nn.Sequential(
-            nn.Dropout2d(0.1, False),
-            nn.Conv2d(inter_channels, out_channels, 1))
-        self.block2 = nn.Sequential(
+        self.block = nn.Sequential(
             nn.Dropout2d(0.1, False),
             nn.Conv2d(2*inter_channels, out_channels, 1))
-        self.block3 = nn.Sequential(
-            nn.Dropout2d(0.1, False),
-            nn.Conv2d(inter_channels, out_channels, 1))
 
-        self.fpn_head = fcn_fpnHead(in_channels, inter_channels, norm_layer, self._up_kwargs)
+        self.fpn_head = fcn_fpnHead(in_channels, norm_layer, self._up_kwargs)
         self.aspp = ASPP_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
     def forward(self, c1,c2,c3,c4):
-        # x = self.fpn_head(c1,c2,c3,c4)
+        x = self.fpn_head(c1,c2,c3,c4)
         #dual path
-        aspp1, aspp2, out = self.aspp(c4)
+        out = self.aspp(x)
+        pred = self.block(out)
 
-        #context sensitive
-        coarse = self.block1(aspp1)
-        pred = self.block2(out)
-
-        #context free
-        context_free = self.block3(aspp2)
-        return pred, coarse, context_free
-
+        return pred
 # def ASPPConv(in_channels, out_channels, atrous_rate, norm_layer):
 #     block = nn.Sequential(
 #         nn.Conv2d(in_channels, out_channels, 3, padding=atrous_rate,
@@ -78,27 +62,23 @@ class new_can4Head(nn.Module):
 #         nn.ReLU(True))
 #     return block
 class fcn_fpnHead(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_layer, up_kwargs):
+    def __init__(self, in_channels, norm_layer, up_kwargs):
         super(fcn_fpnHead, self).__init__()
-        inter_channels = out_channels
-        self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
-                                   norm_layer(inter_channels),
-                                   nn.ReLU(),
-                                   )
+        # inter_channels = in_channels//4
+        # self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+        #                            norm_layer(inter_channels),
+        #                            nn.ReLU(),
+        #                            )
 
-        self.localUp2=localUp(256, inter_channels, norm_layer, up_kwargs)
-        self.localUp3=localUp(512, inter_channels, norm_layer, up_kwargs)
-        self.localUp4=localUp(1024, inter_channels, norm_layer, up_kwargs)
-        self.refine = nn.Sequential(nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
-                                   norm_layer(inter_channels),
-                                   nn.ReLU(),
-                                   )
+        # self.localUp2=localUp(256, in_channels, norm_layer, up_kwargs)
+        self.localUp3=localUp(512, in_channels, norm_layer, up_kwargs)
+        self.localUp4=localUp(1024, in_channels, norm_layer, up_kwargs)
+
     def forward(self, c1,c2,c3,c4):
-        out = self.conv5(c4)
-        out = self.localUp4(c3, out)
-        # out = self.localUp3(c2, out)
+        out = self.localUp4(c3, c4)
+        out = self.localUp3(c2, out)
         # out = self.localUp2(c1, out)
-        out = self.refine(out)
+        # out = self.conv5(c4)
         return out
 
 class localUp(nn.Module):
@@ -172,42 +152,20 @@ class ASPP_Module(nn.Module):
         #     norm_layer(out_channels),
         #     nn.ReLU(True),
         #     nn.Dropout2d(0.5, False))
-        self.project1 = nn.Sequential(
-            nn.Conv2d(4*out_channels, out_channels, 1, bias=False),
-            norm_layer(out_channels),
-            nn.ReLU(True))
-        self.project2 = nn.Sequential(
-            nn.Conv2d(4*out_channels, out_channels, 1, bias=False),
-            norm_layer(out_channels),
-            nn.ReLU(True))
-        self.context_att = nn.Sequential(
-            nn.Conv2d(out_channels, out_channels, 1, bias=True),
-            nn.Sigmoid())
         self.project = nn.Sequential(
-            nn.Conv2d(2*out_channels, out_channels, 1, bias=False),
+            nn.Conv2d(4*out_channels, out_channels, 1, bias=False),
             norm_layer(out_channels),
             nn.ReLU(True))
+        
     def forward(self, x):
         feat0 = self.b0(x)
         feat1 = self.b1(x)
         feat2 = self.b2(x)
         feat3 = self.b3(x)
         feat4 = self.b4(x)
-        # feat01 = self.b01(x)
-        # feat11 = self.b11(x)
-        # feat21 = self.b21(x)
-        # feat31 = self.b31(x)
-        y1 = self.project1(torch.cat((feat0, feat1, feat2, feat3), 1))
-        y2 = self.project2(torch.cat((feat0, feat1, feat2, feat3), 1))
-
-        # y2 = self.project2(torch.cat((feat01, feat11, feat21, feat31), 1))
-        # att = self.context_att(torch.cat([y1, y2], dim=1))
-        # att_list = torch.split(att, 1, dim=1)
-        # out = self.project(torch.cat([y1*att_list[0], y2*att_list[1]], dim=1))
-        att = self.context_att(y2)
-        out = y1*att+y1
+        out = self.project(torch.cat((feat0, feat1, feat2, feat3), 1))
         out = torch.cat([out, feat4], dim=1)
-        return y1,y2,out
+        return out
 
 def get_new_can4(dataset='pascal_voc', backbone='resnet50', pretrained=False,
                 root='~/.encoding/models', **kwargs):
