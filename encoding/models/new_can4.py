@@ -181,7 +181,7 @@ class ASPP_Module(nn.Module):
             norm_layer(out_channels),
             nn.ReLU(True))
         self.context_att = nn.Sequential(
-            nn.Conv2d(in_channels+2*out_channels, out_channels, 1, bias=True),
+            nn.Conv2d(out_channels, out_channels, 1, bias=True),
             nn.Sigmoid())
         self.project = nn.Sequential(
             nn.Conv2d(2*out_channels, out_channels, 1, bias=False),
@@ -204,8 +204,8 @@ class ASPP_Module(nn.Module):
         # att = self.context_att(torch.cat([y1, y2], dim=1))
         # att_list = torch.split(att, 1, dim=1)
         # out = self.project(torch.cat([y1*att_list[0], y2*att_list[1]], dim=1))
-        att = self.context_att(torch.cat([x,y1,y2], dim=1))
-        out = y1*att
+        att = self.context_att(y2)
+        out = y1*att+y1
         out = torch.cat([out, feat4], dim=1)
         return y1,y2,out
 
