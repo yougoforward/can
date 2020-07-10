@@ -44,9 +44,6 @@ class new_can3Head(nn.Module):
         inter_channels = in_channels // 4
         self._up_kwargs = up_kwargs
         
-        self.block1 = nn.Sequential(
-            nn.Dropout2d(0.1, False),
-            nn.Conv2d(inter_channels, out_channels, 1))
         self.block2 = nn.Sequential(
             nn.Dropout2d(0.1, False),
             nn.Conv2d(2*inter_channels, out_channels, 1))
@@ -57,7 +54,6 @@ class new_can3Head(nn.Module):
         self.localUp3=localUp(512, in_channels, norm_layer, up_kwargs)
         self.localUp4=localUp(1024, in_channels, norm_layer, up_kwargs)
         
-        self.fpn_head = fcn_fpnHead(2048, inter_channels, norm_layer, self._up_kwargs)
         self.aspp = ASPP_Module(in_channels, inter_channels, atrous_rates, norm_layer, up_kwargs)
 
     def forward(self, c1,c2,c3,c4):
@@ -67,7 +63,6 @@ class new_can3Head(nn.Module):
         aspp1, aspp2, out = self.aspp(out)
 
         #context sensitive
-        # coarse = self.block1(aspp1)
         pred = self.block2(out)
 
         #context free
