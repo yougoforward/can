@@ -49,7 +49,7 @@ class new_can3Head(nn.Module):
             nn.Conv2d(2*inter_channels, out_channels, 1))
         self.block3 = nn.Sequential(
             nn.Dropout2d(0.1, False),
-            nn.Conv2d(inter_channels, out_channels, 1))
+            nn.Conv2d(2*inter_channels, out_channels, 1))
 
         self.localUp3=localUp(512, in_channels, norm_layer, up_kwargs)
         self.localUp4=localUp(1024, in_channels, norm_layer, up_kwargs)
@@ -60,7 +60,7 @@ class new_can3Head(nn.Module):
         out = self.localUp4(c3, c4)
         out = self.localUp3(c2, out)
         #dual path
-        aspp1, aspp2, out = self.aspp(out)
+        aspp2, out = self.aspp(out)
 
         #context sensitive
         pred = self.block2(out)
@@ -80,7 +80,7 @@ class new_can3Head(nn.Module):
 class localUp(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, up_kwargs):
         super(localUp, self).__init__()
-        self.connect = nn.Sequential(nn.Conv2d(in_channels, in_channels, 3, padding=1, dilation=1, bias=False),
+        self.connect = nn.Sequential(nn.Conv2d(in_channels, in_channels, 3, padding=2, dilation=2, bias=False),
                                    norm_layer(in_channels),
                                    nn.ReLU(),
                                    nn.Conv2d(in_channels, out_channels, 1, padding=0, dilation=1, bias=False),
@@ -160,12 +160,12 @@ class ASPP_Module(nn.Module):
             norm_layer(out_channels),
             nn.ReLU(True))
         self.context_att = nn.Sequential(
-            nn.Conv2d(out_channels, out_channels, 1, bias=True),
+            nn.Conv2d(2*out_channels, out_channels, 1, bias=True),
             nn.Sigmoid())
-        self.project = nn.Sequential(
-            nn.Conv2d(2*out_channels, out_channels, 1, bias=False),
-            norm_layer(out_channels),
-            nn.ReLU(True))
+        # self.project = nn.Sequential(
+        #     nn.Conv2d(2*out_channels, out_channels, 1, bias=False),
+        #     norm_layer(out_channels),
+        #     nn.ReLU(True))
     def forward(self, x):
         feat0 = self.b0(x)
         feat1 = self.b1(x)
@@ -183,10 +183,12 @@ class ASPP_Module(nn.Module):
         # att = self.context_att(torch.cat([y1, y2], dim=1))
         # att_list = torch.split(att, 1, dim=1)
         # out = self.project(torch.cat([y1*att_list[0], y2*att_list[1]], dim=1))
+        y2 = torch.cat([y2, feat4], dim=1)
+
         att = self.context_att(y2)
         out = y1+y1*att
         out = torch.cat([out, feat4], dim=1)
-        return y1,y2,out
+        return y2,out
 
 def get_new_can3(dataset='pascal_voc', backbone='resnet50', pretrained=False,
                 root='~/.encoding/models', **kwargs):
